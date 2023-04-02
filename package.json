@@ -1,0 +1,22 @@
+{
+  "name": "github-bot",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "description": "Automatic github workflows",
+  "main": "prbroker.js",
+  "bin": [ "prbroker.js" ],
+  "scripts": {
+    "build": "rimraf ./build && tsc"
+  },
+  "author": "holger.partsch@sap.com",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^10.0.0",
+    "octokit": "^2.0.14"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.11",
+    "rimraf": "^4.4.1",
+    "typescript": "^5.0.3"
+  }
+}
