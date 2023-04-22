@@ -2,7 +2,7 @@
 
 import child_process from 'node:child_process';
 import { platform } from 'node:process';
-import { Repository } from '../types';
+import { Repository } from './types';
 import GitUrlParse from 'git-url-parse';
 
 const GIT = platform === 'win32' ? 'git.exe' : 'git';

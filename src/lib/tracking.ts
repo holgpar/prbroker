@@ -1,8 +1,8 @@
 'use strict';
 
 import { Octokit } from 'octokit';
-import { Repository, PullRequest } from '../types';
-import { persistPullRequest } from '../persistence';
+import { Repository, PullRequest } from './types';
+import { persistPullRequest } from './persistence';
 
 export class Tracker {
   _octokit: Octokit;
@@ -16,6 +16,7 @@ export class Tracker {
     if (isNaN(pullNumber)) {
       throw new Error('PR identifier must be a number');
     }
+    //TODO: proper error handling
     const response = await this._octokit.rest.pulls.get({
       owner: repo.owner,
       repo: repo.name,

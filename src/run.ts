@@ -8,6 +8,7 @@ import { Command } from 'commander';
 // own modules
 import { getRepository } from './lib/gitContext';
 import { Tracker } from './lib/tracking';
+import * as persistence from './lib/persistence'
 
 function readConfig() {
   const home: string = process.env.HOME as string;
@@ -34,12 +35,19 @@ program
   .command('track')
   .description('keep track of a pull request')
   .argument('<prIdentifier>', 'Pull request number or branch name')
-  .action(async function (prIdentifier) {
+  .action(async function(prIdentifier) {
     console.log('tracking ', prIdentifier);
     const repo = getRepository();
     const client = getClientForHost(repo.host);
     const tracker = new Tracker(client);
     await tracker.addNewPr(repo, prIdentifier);
+  });
+
+program
+  .command('report')
+  .description('report on tracked pull requests')
+  .action(async function() {
+    console.log(await persistence.listPullRequests());
   });
 
 program.parseAsync();
