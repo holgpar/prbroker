@@ -10,3 +10,7 @@ export type PullRequest = {
   repository: Repository;
   number: number;
 };
+
+export interface PullRequestData {
+  url: string;
+}

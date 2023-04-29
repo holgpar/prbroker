@@ -1,6 +1,5 @@
 'use strict';
 
-import { Octokit } from 'octokit';
 import * as path from 'path';
 import * as fs from 'node:fs';
 import { Command } from 'commander';
@@ -8,7 +7,9 @@ import { Command } from 'commander';
 // own modules
 import { getRepository } from './lib/gitContext';
 import { Tracker } from './lib/tracking';
-import * as persistence from './lib/persistence'
+import { Persistence } from './lib/persistence';
+import { TRACKING_LIST_DIR_NAME } from './lib/constants';
+import * as github from './lib/github';
 
 function readConfig() {
   const home: string = process.env.HOME as string;
@@ -19,9 +20,7 @@ function readConfig() {
 
 const config = readConfig();
 
-console.log(config);
-
-const pkg = require('../package.json');
+const pkg = require('../../package.json');
 const appName = Object.keys(pkg.bin)[0];
 
 const program = new Command();
@@ -35,10 +34,10 @@ program
   .command('track')
   .description('keep track of a pull request')
   .argument('<prIdentifier>', 'Pull request number or branch name')
-  .action(async function(prIdentifier) {
+  .action(async function (prIdentifier) {
     console.log('tracking ', prIdentifier);
     const repo = getRepository();
-    const client = getClientForHost(repo.host);
+    const client = github.getClientForHost(config, repo.host);
     const tracker = new Tracker(client);
     await tracker.addNewPr(repo, prIdentifier);
   });
@@ -46,20 +45,13 @@ program
 program
   .command('report')
   .description('report on tracked pull requests')
-  .action(async function() {
-    console.log(await persistence.listPullRequests());
+  .action(async function () {
+    const pullRequests = await new Persistence(
+      TRACKING_LIST_DIR_NAME
+    ).listPullRequests();
+    const fetcher = new github.PullRequestFetcher(config);
+    const data = fetcher.fetchPullRequests(pullRequests);
+    console.log(await data);
   });
 
 program.parseAsync();
-
-function getClientForHost(host: string) {
-  const server = config.servers.find((server: any) => server.host === host);
-  if (!server) {
-    throw new Error(`Cannot find configuration for host ${host}.`);
-  }
-  if ('token' in server) {
-    return new Octokit({ auth: server.token, baseUrl: server.baseUrl });
-  } else {
-    throw new Error(`No token found in configuration for host ${host}.`);
-  }
-}

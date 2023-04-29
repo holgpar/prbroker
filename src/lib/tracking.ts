@@ -2,7 +2,8 @@
 
 import { Octokit } from 'octokit';
 import { Repository, PullRequest } from './types';
-import { persistPullRequest } from './persistence';
+import { Persistence } from './persistence';
+import { TRACKING_LIST_DIR_NAME } from './constants';
 
 export class Tracker {
   _octokit: Octokit;
@@ -27,7 +28,7 @@ export class Tracker {
         repository: repo,
         number: response.data.number,
       };
-      await persistPullRequest(pr);
+      await new Persistence(TRACKING_LIST_DIR_NAME).persistPullRequest(pr);
     }
   }
 }

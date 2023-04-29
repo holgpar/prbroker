@@ -8,18 +8,24 @@
     "prbroker.js"
   ],
   "scripts": {
-    "build": "rimraf ./build && tsc"
+    "build": "rimraf ./build && tsc",
+    "test": "cd build && mocha"
   },
   "author": "holger.partsch@sap.com",
   "license": "ISC",
   "dependencies": {
     "commander": "^10.0.0",
     "git-url-parse": "^13.1.0",
-    "octokit": "^2.0.14"
+    "octokit": "^2.0.14",
+    "save-dev": "^0.0.1-security"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.5",
     "@types/git-url-parse": "^9.0.1",
+    "@types/mocha": "^10.0.1",
     "@types/node": "^18.15.11",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
     "prettier": "2.8.7",
     "rimraf": "^4.4.1",
     "typescript": "^5.0.3"
