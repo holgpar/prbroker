@@ -44,17 +44,17 @@ export class PullRequestFetcher {
 
   async fetchPullRequests(
     pullRequests: PullRequest[]
-  ): Promise<PullRequestData[]> {
-    const responses = await Promise.all(
-      pullRequests.map((pr) => {
+  ): Promise<(PullRequest & PullRequestData)[]> {
+    return Promise.all(
+      pullRequests.map(async (pr) => {
         const client = this.cache.load(pr.repository.host);
-        return client.rest.pulls.get({
+        const response = await client.rest.pulls.get({
           owner: pr.repository.owner,
           repo: pr.repository.name,
           pull_number: pr.number,
         });
+        return { ...pr, ...response.data };
       })
     );
-    return responses.map((r) => r.data);
   }
 }

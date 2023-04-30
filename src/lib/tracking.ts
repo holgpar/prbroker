@@ -27,7 +27,7 @@ export class Tracker {
       const pr: PullRequest = {
         repository: repo,
         number: response.data.number,
-        updated: new Date(),
+        seen_at: new Date(),
       };
       await new Persistence(TRACKING_LIST_DIR_NAME).persistPullRequest(pr);
     }

@@ -10,6 +10,7 @@ import { Tracker } from './lib/tracking';
 import { Persistence } from './lib/persistence';
 import { TRACKING_LIST_DIR_NAME } from './lib/constants';
 import * as github from './lib/github';
+import { Reporter } from './lib/reporting';
 
 function readConfig() {
   const home: string = process.env.HOME as string;
@@ -50,8 +51,10 @@ program
       TRACKING_LIST_DIR_NAME
     ).listPullRequests();
     const fetcher = new github.PullRequestFetcher(config);
-    const data = fetcher.fetchPullRequests(pullRequests);
-    console.log(await data);
+    const data = await fetcher.fetchPullRequests(pullRequests);
+    const reporter = new Reporter();
+    const report = reporter.compileReport(data);
+    reporter.printReport(report);
   });
 
 program.parseAsync();

@@ -1,9 +1,8 @@
 'use strict';
 
-import { PullRequest } from './types';
+import { PullRequest, Repository } from './types';
 import * as fs from 'node:fs/promises';
 import * as path from 'path';
-import { Repository } from './types';
 
 export class Persistence {
   root: string;
@@ -80,7 +79,7 @@ async function listPullRequestsInRepository(
     pullRequestNumbers.map(async (pr) => ({
       repository: repository,
       number: pr,
-      updated: (await fs.stat(path.join(repositoryPath, pr.toString()))).ctime,
+      seen_at: (await fs.stat(path.join(repositoryPath, pr.toString()))).mtime,
     }))
   );
 }
