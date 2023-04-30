@@ -1,7 +1,7 @@
 'use strict';
 
 import { Octokit } from 'octokit';
-import { Repository, PullRequest } from './types';
+import { Repository, PullRequestCoordinates } from './types';
 import { Persistence } from './persistence';
 import { TRACKING_LIST_DIR_NAME } from './constants';
 
@@ -24,10 +24,9 @@ export class Tracker {
       pull_number: pullNumber,
     });
     if ('data' in response) {
-      const pr: PullRequest = {
+      const pr: PullRequestCoordinates = {
         repository: repo,
         number: response.data.number,
-        seen_at: new Date(),
       };
       await new Persistence(TRACKING_LIST_DIR_NAME).persistPullRequest(pr);
     }

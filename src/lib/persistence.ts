@@ -1,6 +1,10 @@
 'use strict';
 
-import { PullRequest, Repository } from './types';
+import {
+  PullRequestCoordinates,
+  PullRequestTrackingInfo,
+  Repository,
+} from './types';
 import * as fs from 'node:fs/promises';
 import * as path from 'path';
 
@@ -11,7 +15,7 @@ export class Persistence {
     this.root = root;
   }
 
-  async persistPullRequest(pr: PullRequest) {
+  async persistPullRequest(pr: PullRequestCoordinates) {
     const repoDirName = path.join(
       this.root,
       pr.repository.host,
@@ -23,15 +27,27 @@ export class Persistence {
     await touch(path.join(repoDirName, pr.number.toString()));
   }
 
-  async listPullRequests(): Promise<PullRequest[]> {
+  async listPullRequests(): Promise<PullRequestTrackingInfo[]> {
     const repositoryPaths: string[] = await recursivelyListDirectory(
       this.root,
       3
     );
-    return (
+    const result = (
       await Promise.all(repositoryPaths.map(listPullRequestsInRepository))
     ).flat();
+    result.sort(comparePullRequests);
+    for (let index = 1; index < result.length; index++) {
+      result[index].index = index;
+    }
+    return result;
   }
+}
+
+function comparePullRequests(
+  left: PullRequestTrackingInfo,
+  right: PullRequestTrackingInfo
+): number {
+  return left.seen_at.getMilliseconds() - right.seen_at.getMilliseconds();
 }
 
 async function recursivelyListDirectory(
@@ -60,7 +76,7 @@ async function recursivelyListDirectory(
 
 async function listPullRequestsInRepository(
   repositoryPath: string
-): Promise<PullRequest[]> {
+): Promise<PullRequestTrackingInfo[]> {
   const pullRequestNumbers: number[] = (
     await fs.readdir(repositoryPath, { withFileTypes: true })
   )
@@ -80,6 +96,7 @@ async function listPullRequestsInRepository(
       repository: repository,
       number: pr,
       seen_at: (await fs.stat(path.join(repositoryPath, pr.toString()))).mtime,
+      index: NaN,
     }))
   );
 }

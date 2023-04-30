@@ -6,13 +6,22 @@ export type Repository = {
   name: string;
 };
 
-export type PullRequest = {
+export type PullRequestCoordinates = {
   repository: Repository;
   number: number;
-  seen_at: Date;
 };
 
-export interface PullRequestData {
-  url: string;
+export type PullRequestTrackingInfo = PullRequestCoordinates & {
+  seen_at: Date;
+  index: number;
+};
+
+export interface PullRequestAPIData {
+  html_url: string;
   updated_at: string;
+  title: string;
 }
+
+export type PullRequestData = PullRequestTrackingInfo & {
+  apiData: PullRequestAPIData;
+};
