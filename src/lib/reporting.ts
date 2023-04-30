@@ -1,17 +1,17 @@
 'use strict';
 
-import { PullRequestData } from './types';
+import * as pr from './pullRequests';
 
 export class Reporter {
-  recentlyUpdated(pullRequest: PullRequestData) {
+  recentlyUpdated(pullRequest: pr.Data) {
     return pullRequest.seen_at < new Date(pullRequest.apiData.updated_at);
   }
 
-  compileReport(pullRequests: PullRequestData[]): PullRequestData[] {
+  compileReport(pullRequests: pr.Data[]): pr.Data[] {
     return pullRequests.filter(this.recentlyUpdated);
   }
 
-  printReport(pullRequests: PullRequestData[]): void {
+  printReport(pullRequests: pr.Data[]): void {
     const table = pullRequests.reduce(
       (table, pr) => ({
         ...table,

@@ -1,11 +1,7 @@
 'use strict';
 
 import { Octokit } from 'octokit';
-import {
-  PullRequestTrackingInfo,
-  PullRequestData,
-  PullRequestCoordinates,
-} from './types';
+import * as pr from './pullRequests';
 
 export function getClientForHost(config: any, host: string): Octokit {
   const server = config.servers.find((server: any) => server.host === host);
@@ -46,9 +42,7 @@ export class PullRequestFetcher {
     this.cache = new ClientCache(config);
   }
 
-  async fetchPullRequests(
-    pullRequests: PullRequestTrackingInfo[]
-  ): Promise<PullRequestData[]> {
+  async fetchPullRequests(pullRequests: pr.TrackingInfo[]): Promise<pr.Data[]> {
     return Promise.all(
       pullRequests.map(async (pr) => {
         const client = this.cache.load(pr.repository.host);

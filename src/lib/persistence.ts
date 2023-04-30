@@ -1,10 +1,6 @@
 'use strict';
 
-import {
-  PullRequestCoordinates,
-  PullRequestTrackingInfo,
-  Repository,
-} from './types';
+import * as pr from './pullRequests';
 import * as fs from 'node:fs/promises';
 import * as path from 'path';
 
@@ -15,7 +11,7 @@ export class Persistence {
     this.root = root;
   }
 
-  async persistPullRequest(pr: PullRequestCoordinates) {
+  async persistPullRequest(pr: pr.Coordinates) {
     const repoDirName = path.join(
       this.root,
       pr.repository.host,
@@ -27,7 +23,7 @@ export class Persistence {
     await touch(path.join(repoDirName, pr.number.toString()));
   }
 
-  async listPullRequests(): Promise<PullRequestTrackingInfo[]> {
+  async listPullRequests(): Promise<pr.TrackingInfo[]> {
     const repositoryPaths: string[] = await recursivelyListDirectory(
       this.root,
       3
@@ -36,16 +32,16 @@ export class Persistence {
       await Promise.all(repositoryPaths.map(listPullRequestsInRepository))
     ).flat();
     result.sort(comparePullRequests);
-    for (let index = 1; index < result.length; index++) {
-      result[index].index = index;
+    for (let index = 0; index < result.length; index++) {
+      result[index].index = index + 1;
     }
     return result;
   }
 }
 
 function comparePullRequests(
-  left: PullRequestTrackingInfo,
-  right: PullRequestTrackingInfo
+  left: pr.TrackingInfo,
+  right: pr.TrackingInfo
 ): number {
   return left.seen_at.getMilliseconds() - right.seen_at.getMilliseconds();
 }
@@ -76,7 +72,7 @@ async function recursivelyListDirectory(
 
 async function listPullRequestsInRepository(
   repositoryPath: string
-): Promise<PullRequestTrackingInfo[]> {
+): Promise<pr.TrackingInfo[]> {
   const pullRequestNumbers: number[] = (
     await fs.readdir(repositoryPath, { withFileTypes: true })
   )
@@ -86,7 +82,7 @@ async function listPullRequestsInRepository(
     .filter((number) => !isNaN(number));
 
   const pathSegments: string[] = repositoryPath.split(path.sep);
-  const repository: Repository = {
+  const repository: pr.Repository = {
     name: pathSegments[pathSegments.length - 1],
     owner: pathSegments[pathSegments.length - 2],
     host: pathSegments[pathSegments.length - 3],

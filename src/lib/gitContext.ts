@@ -2,7 +2,7 @@
 
 import child_process from 'node:child_process';
 import { platform } from 'node:process';
-import { Repository } from './types';
+import * as pr from './pullRequests';
 import GitUrlParse from 'git-url-parse';
 
 const GIT = platform === 'win32' ? 'git.exe' : 'git';
@@ -16,7 +16,7 @@ export function getRepository() {
   return parseRepositoryUrl(originUrl.trimEnd());
 }
 
-function parseRepositoryUrl(url: string): Repository {
+function parseRepositoryUrl(url: string): pr.Repository {
   const parsed = GitUrlParse(url);
 
   return {
