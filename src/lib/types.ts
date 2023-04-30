@@ -9,6 +9,7 @@ export type Repository = {
 export type PullRequest = {
   repository: Repository;
   number: number;
+  updated: Date;
 };
 
 export interface PullRequestData {

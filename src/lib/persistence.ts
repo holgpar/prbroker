@@ -62,8 +62,7 @@ async function recursivelyListDirectory(
 async function listPullRequestsInRepository(
   repositoryPath: string
 ): Promise<PullRequest[]> {
-  console.log(repositoryPath);
-  const pullRequests: number[] = (
+  const pullRequestNumbers: number[] = (
     await fs.readdir(repositoryPath, { withFileTypes: true })
   )
     .filter((entry) => entry.isFile())
@@ -77,10 +76,13 @@ async function listPullRequestsInRepository(
     owner: pathSegments[pathSegments.length - 2],
     host: pathSegments[pathSegments.length - 3],
   };
-  return pullRequests.map((prNumber) => ({
-    repository: repository,
-    number: prNumber,
-  }));
+  return Promise.all(
+    pullRequestNumbers.map(async (pr) => ({
+      repository: repository,
+      number: pr,
+      updated: (await fs.stat(path.join(repositoryPath, pr.toString()))).ctime,
+    }))
+  );
 }
 
 export async function ensureDirExists(dirName: string) {
