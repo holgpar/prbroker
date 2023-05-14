@@ -36,11 +36,8 @@ program
   .description('keep track of a pull request')
   .argument('<prIdentifier>', 'Pull request number or branch name')
   .action(async function (prIdentifier) {
-    console.log('tracking ', prIdentifier);
-    const repo = getRepository();
-    const client = github.getClientForHost(config, repo.host);
-    const tracker = new Tracker(client);
-    await tracker.addNewPr(repo, prIdentifier);
+    const tracker = new Tracker(new Persistence(TRACKING_LIST_DIR_NAME));
+    await tracker.addNewPr(prIdentifier);
   });
 
 program

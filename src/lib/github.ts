@@ -46,11 +46,20 @@ export class PullRequestFetcher {
     return Promise.all(
       pullRequests.map(async (pr) => {
         const client = this.cache.load(pr.repository.host);
-        const response = await client.rest.pulls.get({
-          owner: pr.repository.owner,
-          repo: pr.repository.name,
-          pull_number: pr.number,
-        });
+        const response = await client.rest.pulls
+          .get({
+            owner: pr.repository.owner,
+            repo: pr.repository.name,
+            pull_number: pr.number,
+          })
+          .catch((error) => {
+            if ('response' in error) {
+              console.log(error.response);
+            } else {
+              console.log('no reponse found');
+            }
+            throw error;
+          });
         return { ...pr, apiData: response.data };
       })
     );

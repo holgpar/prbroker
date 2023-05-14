@@ -1,34 +1,54 @@
 'use strict';
 
-import { Octokit } from 'octokit';
 import * as pr from './pullRequests';
 import { Persistence } from './persistence';
 import { TRACKING_LIST_DIR_NAME } from './constants';
+import { getRepository } from './gitContext';
 
 export class Tracker {
-  _octokit: Octokit;
+  _persistence: Persistence;
 
-  constructor(octokit: Octokit) {
-    this._octokit = octokit;
+  constructor(persistence: Persistence) {
+    this._persistence = persistence;
   }
 
-  async addNewPr(repo: pr.Repository, prIdentifier: string) {
-    const pullNumber = Number(prIdentifier);
-    if (isNaN(pullNumber)) {
-      throw new Error('PR identifier must be a number');
-    }
-    //TODO: proper error handling
-    const response = await this._octokit.rest.pulls.get({
-      owner: repo.owner,
-      repo: repo.name,
-      pull_number: pullNumber,
-    });
-    if ('data' in response) {
-      const pr: pr.Coordinates = {
+  private static throwUrlParseError(url: string) {
+    throw new Error(`'${url}' does not look like a pull request URL`);
+  }
+
+  async addNewPr(prIdentifier: string) {
+    const pullRequest = await this.parseIdentifier(prIdentifier);
+    await new Persistence(TRACKING_LIST_DIR_NAME).persistPullRequest(
+      pullRequest
+    );
+  }
+
+  async parseIdentifier(prIdentifier: string): Promise<pr.Coordinates> {
+    const pullRequestNumber = parseInt(prIdentifier);
+
+    if (!isNaN(pullRequestNumber)) {
+      const repo = getRepository();
+      //TODO: proper error handling
+      return {
         repository: repo,
-        number: response.data.number,
+        number: pullRequestNumber,
       };
-      await new Persistence(TRACKING_LIST_DIR_NAME).persistPullRequest(pr);
+    } else {
+      const pullRequestUrl = new URL(prIdentifier);
+      const pathSegments = pullRequestUrl.pathname.split('/');
+      if (pathSegments.length !== 5 || pathSegments[3] !== 'pull') {
+        Tracker.throwUrlParseError(prIdentifier);
+      }
+      const repository: pr.Repository = {
+        host: pullRequestUrl.host,
+        owner: pathSegments[1],
+        name: pathSegments[2],
+      };
+      const pullRequestNumber = parseInt(pathSegments[4]);
+      return {
+        repository: repository,
+        number: pullRequestNumber,
+      };
     }
   }
 }
