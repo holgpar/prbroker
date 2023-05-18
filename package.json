@@ -17,7 +17,8 @@
     "commander": "^10.0.0",
     "git-url-parse": "^13.1.0",
     "octokit": "^2.0.14",
-    "save-dev": "^0.0.1-security"
+    "save-dev": "^0.0.1-security",
+    "yaml": "^2.2.2"
   },
   "devDependencies": {
     "@types/chai": "^4.3.5",

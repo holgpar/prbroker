@@ -1,6 +1,7 @@
 'use strict';
 
 import * as pr from './pullRequests';
+import YAML from 'yaml';
 
 export class Reporter {
   recentlyUpdated(pullRequest: pr.Data) {
@@ -18,10 +19,11 @@ export class Reporter {
         [pr.index]: {
           Title: pr.apiData.title,
           'Updated at': pr.apiData.updated_at,
+          URI: pr.apiData.html_url,
         },
       }),
       {}
     );
-    console.table(table);
+    console.log(YAML.stringify(table));
   }
 }
