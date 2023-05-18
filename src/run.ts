@@ -54,4 +54,9 @@ program
     reporter.printReport(report);
   });
 
+program
+  .command('bump')
+  .description('update the timestamp of a tracked pull request')
+  .action(async function () {});
+
 program.parseAsync();
