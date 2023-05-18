@@ -40,10 +40,15 @@ export class Persistence {
 }
 
 function comparePullRequests(
-  left: pr.TrackingInfo,
-  right: pr.TrackingInfo
+  left: pr.Coordinates,
+  right: pr.Coordinates
 ): number {
-  return left.seen_at.getMilliseconds() - right.seen_at.getMilliseconds();
+  return (
+    left.repository.host.localeCompare(right.repository.host) ||
+    left.repository.owner.localeCompare(right.repository.owner) ||
+    left.repository.name.localeCompare(right.repository.name) ||
+    left.number - right.number
+  );
 }
 
 async function recursivelyListDirectory(
