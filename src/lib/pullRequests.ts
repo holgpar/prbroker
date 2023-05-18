@@ -16,10 +16,15 @@ export type TrackingInfo = Coordinates & {
   index: number;
 };
 
+export interface User {
+  login: string;
+}
+
 export interface APIData {
   html_url: string;
   updated_at: string;
   title: string;
+  user: User | null;
 }
 
 export type Data = TrackingInfo & {

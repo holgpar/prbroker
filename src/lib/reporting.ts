@@ -1,7 +1,7 @@
 'use strict';
 
 import * as pr from './pullRequests';
-import YAML from 'yaml';
+import sprintf from 'sprintf-js';
 
 export class Reporter {
   recentlyUpdated(pullRequest: pr.Data) {
@@ -13,17 +13,26 @@ export class Reporter {
   }
 
   printReport(pullRequests: pr.Data[]): void {
-    const table = pullRequests.reduce(
-      (table, pr) => ({
-        ...table,
-        [pr.index]: {
-          Title: pr.apiData.title,
-          'Updated at': pr.apiData.updated_at,
-          URI: pr.apiData.html_url,
-        },
-      }),
-      {}
-    );
-    console.log(YAML.stringify(table));
+    const headerFormat = "%2d : #%'#5d %s @ %s";
+    const row___Format = '%2s |  %5s %s';
+    for (const pull of pullRequests) {
+      const user: string = pull.apiData.user?.login || 'unknown';
+      console.log(
+        sprintf.sprintf(
+          headerFormat,
+          pull.index,
+          pull.number,
+          pull.apiData.title,
+          user
+        )
+      );
+      console.log(sprintf.sprintf(row___Format, '', '', pull.apiData.html_url));
+      if (pull.apiData.user) {
+        console.log(
+          sprintf.sprintf(row___Format, '', '', pull.apiData.user.login)
+        );
+      }
+      console.log('');
+    }
   }
 }
