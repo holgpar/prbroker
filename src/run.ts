@@ -68,7 +68,7 @@ program
       return;
     }
     const toBump: pr.TrackingInfo | undefined = pullRequests.find(
-      (pull) => pull.number === pullIndexParsed
+      (pull) => pull.index === pullIndexParsed
     );
     if (!toBump) {
       console.error(
